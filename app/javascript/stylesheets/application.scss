@@ -1,0 +1,81 @@
+
+@import '~bootstrap/scss/bootstrap';
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+
+body {
+  padding-top: 90px;
+  padding-bottom: 20px;
+}
+
+h1{
+  font-size: 28px
+}
+
+h2{
+  font-size: 24px
+}
+
+.subtitle{
+  color:#7f7f7f
+  
+}
+
+.links {
+  float: left;
+}
+
+.navbar-expand-lg {
+  background-color: #eb6112;
+  border-color: rgb(255, 64, 13);
+  color: #ffffff;
+}
+.collapse .navbar-nav > li > a:hover {
+  transition: 0.5s ;
+  background-color: lightgrey;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.4);
+}
+.collapse .navbar-nav > li {
+  padding-left: 15px;
+}
+.collapse .navbar-nav > li > a {
+  font-weight: 500;
+}
+
+.botton {
+  width: 100%;
+}
+.section{
+  padding-bottom: 10px;
+  
+}
+
+.chart {
+  width: 700px;
+  height: 500px;
+}
+
+
+
+
+.parent_direction {
+  width: 55%;
+  // float: left;
+}
+
+.seasons{
+  text-align:right;
+
+}
+
+// .prev-btn {
+//   float: left;
+// }
+
+// .next-btn {
+//   float: right;
+// }
+
+.date {
+  text-align: center;
+}

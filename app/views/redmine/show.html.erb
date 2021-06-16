@@ -1,0 +1,292 @@
+<br><br>
+<div class="container">
+  <div class="">
+    <h1>
+      <div class=""><%= @project.project_name %></div>
+    </h1>
+
+    <% if !@project.nil? %>
+      <%= form_with(model: @project, url: "/projects/#{@project.project_id}", local: true) do |f| %>
+        <div class="form-group subtitle">
+          <table class="table table-bordered table-striped table-hover">
+            <tr>
+              <th>受注額</th>
+              <th>予算(見積もり工数 × 単価)</th>
+              <th>リーダー</th>
+              <th></th>
+            </tr>
+            <tr>
+              <td><%= f.number_field :sales %></td>
+              <td><%= f.number_field :planned_cost %></td>
+              <td><%= f.text_field :leader_name %></td>
+              <td><%= f.submit '更新', class: 'btn btn-primary'%></td>
+            </tr>
+          </table>
+        </div>
+      <% end %>
+      <hr>
+      <%= form_with(url: "/projects/#{@project.project_id}", local: true) do |f| %>
+        <div class="form-group subtitle">
+          <table class="table table-bordered table-striped table-hover">
+            <tr>
+              <th>外注費</th>
+              <th>名前</th>
+              <th>説明</th>
+              <th></th>
+            </tr>
+            <% @outsourcing_info.each do |p| %>
+              <tr>
+                <td><%= f.number_field :cost, value: p.cost %></td>
+                <td><%= f.text_field :name, value: p.name %></td>
+                <td><%= f.text_field :description, value: p.description %></td>
+                <td><%= link_to '削除', "/outsourcing_costs/#{p.id}", method: :delete, data: { confirm: "「#{p.cost}万円」のレコードを削除します" }, class: 'btn btn-danger' %> </td>
+              </tr>
+            <% end %>
+            <tr>
+              <td><%= f.number_field :cost %></td>
+              <td><%= f.text_field :name %></td>
+              <td><%= f.text_field :description %></td>
+              <td><%= f.submit '更新', class: 'btn btn-primary'%></td>
+            </tr>
+          </table>
+        </div>
+      <% end %>
+    <% else %>
+    <hr>
+    <h2>
+    <div>⚠先に、下記URLを開いて下さい（ページを開いたら、未入力ですぐ閉じてOKです）。</div>
+    <a>http://laplace.phoenix/project_options</a>
+    <div>※新しく作成したプロジェクトの場合、このURLを一度以上開く必要があります。</div>
+    </h2>
+    <% end %>
+    <hr>
+  </div>
+
+  <% if !@project.nil? %>
+  <div class="section">
+    <h2>
+      <span class="fas fa-dollar-sign" aria-hidden="true"></span>
+      予算</h2>
+    <table class="table table-bordered  table-hover">
+      <tr>
+        <th>受注額</th>
+        <td><%= number_to_currency(@project.sales, :precision => 1,:format => "%n%u", :unit => "万円") %></td>
+      </tr>
+      <tr data-toggle="tooltip" data-original-title="見積もり工数 × 単価(Laplaceに登録している正社員のもの)．デバッグの予算は含まれない．">
+        <th>プロジェクト全体予算</th>
+        <td><%= number_to_currency(@project.planned_cost, :precision => 1,:format => "%n%u", :unit => "万円") %></td>
+      </tr>
+      <tr>
+        <th>外注費</th>
+        <td><%= number_to_currency(@outsourcing_cost_sum, :precision => 1,:format => "%n%u", :unit => "万円") %></td>
+      </tr>
+      <tr>
+        <th>予想利益（受注額 - 予算 - 外注費）</th>
+        <td><%= number_to_currency(@estimated_profits, :precision => 1,:format => "%n%u", :unit => "万円") %></td>
+      </tr>
+      <tr>
+        <th>実利益（受注額 - 実コスト - 外注費）</th>
+        <td><%= number_to_currency(@net_income, :precision => 1,:format => "%n%u", :unit => "万円") %></td>
+      </tr>
+      <tr>
+        <th>利益率（現在の週まで）</th>
+        <td><%= number_to_currency(@profit_rate, :precision => 1,:format => "%n%u", :unit => "％") %></td>
+      </tr>
+      <tr data-toggle="tooltip" data-original-title=
+      "プラチナ（利益率 50%）
+      ゴールド（30%）
+      シルバー（20%）
+      ブロンズ（10%）
+      ストーン（0%）">
+        <th>評価値</th>
+        <td><%= @grade %></td>
+      </tr>
+      <tr data-toggle="tooltip" data-original-title="累積予算計画値．(総予算/プロジェクト稼働週数)の累積値で表されている．">
+        <th>今週までのPV（予算コスト）</th>
+        <td><%= @total_pv.round(1) %>時間</td>
+      </tr>
+      <tr data-toggle="tooltip" data-original-title="バグチケットを含めた全チケットの作業時間に対して支出したコスト．">
+        <th>今週までのAC（実コスト）</th>
+        <td><%= @total_ac.round(1) %>時間</td>
+      </tr>
+      <tr data-toggle="tooltip" data-original-title="各チケット開始日からプロジェクト終了日までの出来高の総和を表す．バグチケットや保留チケットは除外．">
+        <th>今週までのEV（出来高）</th>
+        <td><%= @total_ev.round(1) %>時間</td>
+      </tr>
+      <tr>
+        <th>プロジェクト完了まで残りの予想コスト</th>
+        <td><%= "#{(@remaining_working_time / @this_week_velocity).round(2)}時間" if @this_week_velocity.present? %></td>
+      </tr>
+    </table>
+  </div>
+  <% end %>
+  <div class="section">
+    <h2><span class="fas fa-chart-line" aria-hidden="true"></span>グラフ</h2>
+    <div class="botton">
+      <div class="parent_direction" id="parent_direction">
+        <span class="direction prev-btn" id="prev-btn">　← 前へ　</span>
+        <span class="date" id="date"></span>
+        <span class="direction next-btn" id="next-btn">　次へ →　</span>
+      </div>
+      <div class="seasons">
+        <button class="btn btn-secondary season decorate" type="submit">1週間</button>
+        <button class="btn btn-secondary season" type="submit">2週間</button>
+        <button class="btn btn-secondary season" type="submit">1ヶ月</button>
+        <% if @active_days.to_i > 30 %>
+          <button class="btn btn-secondary season" type="submit">全期間</button>
+        <% end %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <canvas class="chart" id="time"></canvas>
+      </div>
+      <div class="col">
+        <canvas class="chart" id="money"></canvas>  
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>
+      <span class="fas fa-heart" aria-hidden="true"></span>
+      状態</h2>
+    <table class="table table-striped">
+      <tr>
+        <th>Velocity（予定工数÷実工数）今週</th>
+        <th><%= (@this_week_velocity * 100).round(2) if @this_week_velocity.present? %></th>
+      </tr>
+      <tr>
+        <th>Velocity 先週</th>
+        <th><%= (@last_week_velocity * 100).round(2) if @last_week_velocity.present? %></th>
+      </tr>
+      <tr>
+        <th>Velocity 先々週</th>
+        <th><%= (@two_weeks_ago_velocity * 100).round(2) if @two_weeks_ago_velocity.present? %></th>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>
+      <span class="fas fa-user-alt" aria-hidden="true"></span>
+      ユーザー</h2>
+    <table class="table table-striped">
+      <tr>
+        <th>名前</th>
+        <th>作業時間</th>
+      </tr>
+
+      <% if @users_worktime.present? %>
+        <% @users_worktime.each do |user| %>
+          <tr>
+            <td><%= user[0] %></td>
+            <td><%= user[1].round(1) %>時間</td>
+          </tr>
+        <% end %>
+      <% end %>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>
+      <span class="fas fa-stream" aria-hidden="true"></span>
+      バージョン
+    </h2>
+    <% if @versions.present? %>
+      <table class="table table-striped">
+        <tr>
+          <th>バージョン</th>
+          <th>締め日</th>
+          <th>概要</th>
+          <th>QCチェック</th>
+        </tr>
+        <% @versions.each do |version| %>
+          <tr class=<%= "versions_#{version[:id]}" %>>
+            <td><%= version[:name] %></td>
+            <td><%= version[:due_date] %></td>
+            <td><%= version[:description] %></td>
+            <% if version[:qc_checked] %>
+              <td><%= button_to "確認済み", {controller: 'redmine', action: 'versions_update'}, { method: :patch, class: "btn btn-secondary qc_checked unconfirmed", params: {qc_checked: false, version: version} } %></td>
+            <% else %>
+              <td><%= button_to "未確認", {controller: 'redmine', action: 'versions_update'}, { method: :patch, class: "btn btn-success qc_checked confirmed", params: {qc_checked: true, version: version} } %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </table>
+    <% else %>
+      ※バージョンが作成されていません。
+    <% end %>
+  </div>
+</div>
+
+
+
+<br><br>
+
+
+<%# <div class="seasons">
+  <div class="season decorate">1週間 |</div>
+  <div class="season">2週間 |</div>
+  <div class="season">1ヶ月 |</div>
+  <% if @active_days.to_i > 30 %>
+    <%# <div class="season">全期間</div> %>
+  <%# <% end %> 
+<%# </div>  %>
+
+
+<%# <% if @flag == 0 %>
+  <%# <p class="alert">バージョンを更新してください</p> %>
+<%# <% end %>  
+
+<!-- キャンバス描画 // -->
+<%# <div class="chart">
+  <div class="parent_direction" id="parent_direction">
+    <div class="direction prev-btn" id="prev-btn">　← 前へ　</div>　<span id="date"></span>　<div class="direction next-btn" id="next-btn">　次へ →　</div>
+  </div>
+  <canvas id="time"></canvas>
+  <canvas id="cost"></canvas>
+</div> %>
+
+  <%# <label class="btn btn-secondary active">
+    <button  name="options" id="option1" autocomplete="off" checked> Active
+  </label>
+  <label class="btn btn-secondary">
+    <button  name="options" id="option2" autocomplete="off"> Radio
+  </label>
+  <label class="btn btn-secondary">
+    <button  name="options" id="option3" autocomplete="off"> Radio
+  </label> %>
+
+
+
+<%# <div> %>
+  <%# <% if !@project.sales || !@project.planned_cost %> 
+    <%# <p class="alert">入力してください</p> %>
+  <%# <% end %> 
+  <%# <table border="1">
+    <tr>
+      <th>報酬（万円）</th>
+      <th>見積もり（万円）</th>
+      <th>累計EV（時間）</th>
+      <th>累計PV（時間）</th>
+      <th>累計AC（時間）</th>
+      <th>現在の利益率（%）</th>
+    </tr>
+    <tr> %>
+      <%# <td><%= @project.sales %></td> 
+      <%# <td><%= @project.planned_cost %></td> 
+      <%# <td><%= @total_ev %></td> 
+      <%# <td><%= @total_pv %></td>
+      <%# <td><%= @total_ac %></td> 
+      <%# <td><%= (@project.sales/@total_cost*100).round(1) if @project.sales %></td> 
+    <%# </tr> %>
+  <%# </table> %>
+  <%# <%= link_to("編集", "/projects/#{@project.project_id}/edit") %>  
+<%# </div> %>
+<%# <div> %>
+  <%# <%= link_to("プロジェクト関係者一覧", "/projects/#{@project.project_id}/users") %> 
+<%# </div> %>
+
+<%= javascript_pack_tag 'show' %>
+

@@ -1,0 +1,35 @@
+<br><br>
+<%= form_with(model: @project, url: "/projects/#{@project.project_id}", local: true) do |f| %>
+  <table border="1">
+    <tr>
+      <th>報酬（万円）</th>
+      <th>見積もり（万円）</th>
+    </tr>
+    <tr>
+      <td><%= f.text_field :sales, placeholder: "報酬" %></td>
+      <td><%= f.text_field :planned_cost, placeholder: "見積もり" %></td>
+    </tr>
+  </table>
+  <%= f.submit value: "更新" %>
+<% end %>
+
+
+<h1><div class="col-xs-2 col-md-2"><%= @project.project_name %></div></h1>
+<% if !@project.nil? %>
+  <%= form_with(model: @project, url: "/projects/#{@project.project_id}", local: true) do |f| %>
+    <div class="form-group subtitle">
+      <table class="table table-bordered table-striped table-hover">
+        <tr>
+          <th>受注額</th>
+          <th>予算(見積もり工数 × 単価)</th>
+          <th>リーダー</th>
+        </tr>
+        <tr>
+          <td><%= f.number_field :sales %></td>
+          <td><%= f.number_field :planned_cost %></td>
+          <td><%= f.text_field :leader_name %></td>
+          </tr>
+      </table>
+    </div> 
+  <% end %>
+<% end%>

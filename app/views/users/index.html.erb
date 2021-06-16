@@ -1,0 +1,21 @@
+<%= flash[:notice] %></p>
+
+<table class="table table-bordered table-striped table-hover">
+  <tr>
+    <th>RedmineUserID</th>
+    <th>名前</th>
+    <th>単価</th>
+    <th></th>
+  </tr>
+  <% @users.each do |user| %>
+    <% if user.hide == 0 %>
+      <tr>
+        <td><%= user.user_id %></td>
+        <td><%= user.name %></td>
+        <td><%= user.salary %></td>
+        <td><%= link_to("編集","/users/#{user.user_id}/edit", class: 'btn btn-primary') %><%= link_to("削除",user_path(id: user.user_id, hide: 1),method: :patch, class: 'btn btn-danger', data: {confirm: '削除してもよろしいですか？'}) %></td>
+      </tr>
+    <% end %>
+  <% end %>
+</table>
+

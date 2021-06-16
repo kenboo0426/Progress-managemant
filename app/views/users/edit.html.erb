@@ -1,0 +1,17 @@
+<br>
+<%= form_with(model: @user,url: "/users/#{@user.user_id}", local: true) do |f| %>
+  <table class="table table-bordered table-striped table-hover">
+    <tr>
+      <th>RedmineUserID</th>
+      <th>名前</th>
+      <th>単価</th>
+      <th></th>
+    </tr>
+    <tr>
+      <td><%= @user.user_id %></td>
+      <td><%= @user.name %></td>
+      <td><%= f.text_field :salary, value: @user.salary %></td>
+      <td><%= f.submit value: "更新", class: 'btn btn-primary'%></td>
+    </tr>
+  </table>
+  <% end %>

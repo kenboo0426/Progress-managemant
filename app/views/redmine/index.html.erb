@@ -1,0 +1,90 @@
+<%# <p class="finish hide">終了したプロジェクトを非表示にする</p>
+<p class="continue">全て表示する</p>
+<script>
+  $(function(){
+    $('.finish').click(function(){
+      $('.complete').removeClass('show')
+      $(this).addClass('hide')
+      $('.continue').removeClass('hide')
+    })
+    $('.continue').click(function(){
+      $('.complete').addClass('show')
+      $(this).addClass('hide')
+      $('.finish').removeClass('hide')
+    })
+  })
+</script> %>
+<br>
+<h2>進行中プロジェクト</h2>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>コード名</th>
+      <th>プロジェクト説明</th>
+      <th>リーダー</th>
+      <th>評価</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    <% @show_projects.each do |p| %>
+        <tr>
+          <td>
+            <%= link_to(p.project_name, "/projects/#{p.project_id}", class: "btn btn-light") %>
+          </td>
+          <td><%= truncate(p.description, length: 35) %></td>
+          <td><%= p.leader_name %></td>
+          <td><%= p.grade %></td>
+          
+        </tr>
+    <% end %>
+  </tbody>
+</table>
+<%# <br> %>
+<%# <h1 class="heading">プロジェクト</h1> %>
+<%# <h3 class="users"><%= link_to("メンバー一覧を見る", "/users") %></h3> 
+<%# <div class="projects"> %>
+  <%# <% @show_projects.each do |p| %> 
+    <%# <% if p.parent_id.blank? %> 
+      <%# <% if p.status != 5 && p.latest_update.present? && p.latest_update > @today - 365 %> 
+        <%# <div class="project noncomplete not_update_within_year">
+          <div class="project_name"> %>
+            <%# <%= link_to(p.project_name, "/projects/#{p.project_id}") %> 
+          <%# </div>
+          <div class="description"> %>
+            <%# <p class="aa"><%= truncate(p.description, length: 50) %></p> 
+          <%# </div>
+        </div> %>
+      <%# <% else %> 
+        <%# <div class="project complete"> %>
+          <%# <div class="project_name"> %>
+            <%# <%= link_to(p.project_name, "/projects/#{p.project_id}") %> 
+          <%# </div> %>
+          <%# <div class="description"> %>
+            <%# <p class="aa"><%= truncate(p.description, length: 50) %></p> 
+          <%# </div> %>
+        <%# </div> %>
+      <%# <% end %>
+    <%# <% elsif p.parent_id.present? %> 
+      <%# <% if p.status != 5 && p.latest_update.present? && p.latest_update > @today - 365 %> 
+        <%# <div class="project noncomplete">
+          <div class="project_name"> %>
+            <%# <%= link_to(p.project_name, "/projects/#{p.project_id}") %> 
+          <%# </div>
+          <div class="description"> %>
+            <%# <p class="aa"><%= truncate(p.description, length: 50) %></p> 
+          <%# </div>
+        </div> %>
+      <%# <% else %> 
+        <%# <div class="project complete">
+          <div class="project_name">
+            <%= link_to(p.project_name, "/projects/#{p.project_id}") %>
+          <%# </div> %>
+          <%# <div class="description"> %>
+            <%# <p class="aa"><%= truncate(p.description, length: 50) %></p> 
+          <%# </div> %>
+        <%# </div> %>
+      <%# <% end %> 
+    <%# <% end %> 
+  <%# <% end %> 
+<%# </div>  %>

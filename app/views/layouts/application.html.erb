@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TrainingRedmine</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= Gon::Base.render_data %>
+    <%= stylesheet_pack_tag 'application', media: 'all' %> 
+
+    <%= javascript_pack_tag 'application' %> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+
+  </head>
+
+  <body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-warming fixed-top p-4">
+        <div class="container">
+          <a href="/" class="navbar-brand"><img width="138" height="27" src="<%= asset_path "f9.png" %>"/></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+          <ul class="nav navbar-nav">
+            <li class="nav-item active"><a class="nav-link" href="/">PROJECTS </a></li>
+            <li class="nav-item active"><a class="nav-link" href="/users">WORKERS</a></li>
+            <li class="nav-item active"><a class="nav-link" href="https://kew.esa.io/posts/7468"><span class="fas fa-question"></span> HOW TO USE</a></a></li>
+          </ul>
+        </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container">
+      <%= yield %>
+    </div>
+  </body>
+</html>
