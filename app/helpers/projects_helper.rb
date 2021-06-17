@@ -1,4 +1,4 @@
-module RedmineHelper
+module ProjectsHelper
 
   
   API_KEY = "key=#{Rails.application.credentials.redmine_api_key}"

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RedmineControllerTest < ActionDispatch::IntegrationTest
+class ProjectsControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get redmine_index_url
     assert_response :success

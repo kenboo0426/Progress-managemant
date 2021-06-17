@@ -25,7 +25,7 @@
         </div>
       <% end %>
       <hr>
-      <%= form_with(url: "/projects/#{@project.project_id}", local: true) do |f| %>
+      <%= form_with(url: "/projects/#{@project.project_id}/create_outsourcing", method: :post, local: true) do |f| %>
         <div class="form-group subtitle">
           <table class="table table-bordered table-striped table-hover">
             <tr>
@@ -39,7 +39,7 @@
                 <td><%= f.number_field :cost, value: p.cost %></td>
                 <td><%= f.text_field :name, value: p.name %></td>
                 <td><%= f.text_field :description, value: p.description %></td>
-                <td><%= link_to '削除', "/outsourcing_costs/#{p.id}", method: :delete, data: { confirm: "「#{p.cost}万円」のレコードを削除します" }, class: 'btn btn-danger' %> </td>
+                <td><%= link_to '削除', "/projects/#{@project.project_id}/delete_outsourcing", method: :delete, data: { confirm: "「#{p.cost}万円」のレコードを削除します" }, class: 'btn btn-danger' %> </td>
               </tr>
             <% end %>
             <tr>
@@ -207,9 +207,9 @@
             <td><%= version[:due_date] %></td>
             <td><%= version[:description] %></td>
             <% if version[:qc_checked] %>
-              <td><%= button_to "確認済み", {controller: 'redmine', action: 'versions_update'}, { method: :patch, class: "btn btn-secondary qc_checked unconfirmed", params: {qc_checked: false, version: version} } %></td>
+              <td><%= button_to "確認済み", {controller: 'projects', action: 'versions_update'}, { method: :patch, class: "btn btn-secondary qc_checked unconfirmed", params: {qc_checked: false, version: version} } %></td>
             <% else %>
-              <td><%= button_to "未確認", {controller: 'redmine', action: 'versions_update'}, { method: :patch, class: "btn btn-success qc_checked confirmed", params: {qc_checked: true, version: version} } %></td>
+              <td><%= button_to "未確認", {controller: 'projects', action: 'versions_update'}, { method: :patch, class: "btn btn-success qc_checked confirmed", params: {qc_checked: true, version: version} } %></td>
             <% end %>
           </tr>
         <% end %>
