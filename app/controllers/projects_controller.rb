@@ -1,4 +1,4 @@
-class RedmineController < ApplicationController
+class ProjectsController < ApplicationController
 
   before_action :set_project, except: [:index]
   before_action :set_issues, except: [:index]
@@ -27,20 +27,25 @@ class RedmineController < ApplicationController
 
   def update
     if @project.update(project_params)
-      redirect_to("/projects/#{params[:project_id]}")
+      redirect_to("/projects/#{params[:id]}")
     end
   end
 
   def create
+    byebug
+  end
+
+  def create_outsourcing
     if params[:cost].present?
-      OutsourcingCost.create(project_id: params[:project_id], cost: params[:cost], name: params[:name], description: params[:description])
+      OutsourcingCost.create(project_id: params[:id], cost: params[:cost], name: params[:name], description: params[:description])
     end
-    redirect_to("/projects/#{params[:project_id]}")
+    redirect_to("/projects/#{params[:id]}")
   end
 
   def delete_outsourcing
-    outsourcing_cost = OutsourcingCost.find(params[:id]).destroy
-    redirect_to("/projects/#{outsourcing_cost.project_id}")
+    if OutsourcingCost.find_by(project_id: params[:id]).destroy
+      redirect_to("/projects/#{params[:id]}")
+    end
   end
 
   def edit
@@ -48,7 +53,7 @@ class RedmineController < ApplicationController
 
   def versions_update
     if Version.find_by(id: params[:version]).update(qc_checked: params[:qc_checked])
-      redirect_to("/projects/#{params[:project_id]}")
+      redirect_to("/projects/#{params[:id]}")
     end
   end
 
@@ -65,17 +70,21 @@ class RedmineController < ApplicationController
     set_gon
   end
 
+  def users
+    @users_relation = @project.relationships.preload(:user)
+  end
+
   def test
   end
 
   private
 
     def set_project
-      @project = Project.find_by(project_id: params[:project_id])
+      @project ||= Project.find_by(project_id: params[:id])
     end
 
     def set_issues
-      @issues = @project.issues
+      @issues ||= @project.issues
     end
 
     def set_gon
@@ -104,12 +113,18 @@ class RedmineController < ApplicationController
     def set_project_info
       # 外注費合計
       @outsourcing_cost_sum = @project.outsourcing_costs.sum(:cost).to_i
+      # 従業員コスト
+      users_salary = @issues.users_salary.sum(:hours)
+      @employee_cost = 0
+      users_salary.each do |key, value|
+        @employee_cost += key * value if key
+      end
       # 予想利益
       @estimated_profits = @project.sales.to_i - @project.planned_cost.to_i - @outsourcing_cost_sum
       # 実利益
-      @net_income = @project.sales.to_i - @total_cost - @outsourcing_cost_sum
+      @net_income = @project.sales.to_i - @employee_cost - @outsourcing_cost_sum
       # 利益率
-      @profit_rate = ((@project.sales - @outsourcing_cost_sum) / @total_cost * 100).round(1)
+      @profit_rate = ((@project.sales - @outsourcing_cost_sum) / @employee_cost * 100).round(1)
       # 評価値
       @grade = case @profit_rate
       when @profit_rate > 50

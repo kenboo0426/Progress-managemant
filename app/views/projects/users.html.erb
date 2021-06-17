@@ -1,0 +1,14 @@
+<br><br>
+<h1>プロジェクト関係者</h1>
+<p>管理者</p>
+<% @users_relation.each do |relation| %>
+  <% if relation.roles == "管理者" %>
+    <p>・<%= link_to(relation.user.name,"/users/#{relation.user.user_id}/edit") %></p> 
+  <% end %>
+<% end %>
+<p>開発者</p>
+<% @users_relation.each do |relation| %>
+  <% if relation.roles == "開発者" %>
+    <p>・<%= link_to(relation.user.name,"/users/#{relation.user.user_id}/edit") %></p> 
+  <% end %>
+<% end %>

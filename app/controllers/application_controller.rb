@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  include RedmineHelper
+  include ProjectsHelper
   
   require 'net/https'
   require 'uri'

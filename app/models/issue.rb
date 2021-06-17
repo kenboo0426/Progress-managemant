@@ -8,7 +8,7 @@ class Issue < ApplicationRecord
   scope :done_between_today_7days, -> { where("closed_on IS NULL").where(closed_on: Date.today - 7..Date.today) }
   scope :done_between_7days_14days, -> { where("closed_on IS NULL").where(closed_on: Date.today - 14..Date.today - 7) }
   scope :done_between_14days_21days, -> { where("closed_on IS NULL").where(closed_on: Date.today - 21..Date.today - 14) }
-  scope :time_entries, -> { joins(:time_entries).select("time_entries.*") }
-  scope :time_entries_join_users, -> { joins({:time_entries => :user}).select("time_entries.*, users.*").group("users.name") }
-
+  scope :time_entries, -> { eager_load(:time_entries) }
+  scope :time_entries_join_users, -> { eager_load(time_entries: :user).group("users.name") }
+  scope :users_salary, -> { eager_load(time_entries: :user).group("users.salary") }
 end
