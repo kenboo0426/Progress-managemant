@@ -10,5 +10,5 @@ class Issue < ApplicationRecord
   scope :done_between_14days_21days, -> { where("closed_on IS NULL").where(closed_on: Date.today - 21..Date.today - 14) }
   scope :time_entries, -> { eager_load(:time_entries) }
   scope :time_entries_join_users, -> { eager_load(time_entries: :user).group("users.name") }
-  scope :users_salary, -> { eager_load(time_entries: :user).group("users.salary") }
+  scope :daily_cost, -> { eager_load(time_entries: :user).group("users.salary").group("time_entries.spent_on") }
 end

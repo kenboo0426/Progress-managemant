@@ -17,6 +17,7 @@ gem 'delayed_job_active_record'
 gem 'whenever', require: false
 gem 'unicorn'
 gem 'dotenv-rails'
+gem 'slack-notifier'
 
 
 group :development, :test do
