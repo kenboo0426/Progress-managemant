@@ -31,10 +31,6 @@ class ProjectsController < ApplicationController
     end
   end
 
-  def create
-    byebug
-  end
-
   def create_outsourcing
     if params[:cost].present?
       OutsourcingCost.create(project_id: params[:id], cost: params[:cost], name: params[:name], description: params[:description])
@@ -61,12 +57,13 @@ class ProjectsController < ApplicationController
     @total_ac = @issues.time_entries.sum(:hours)
     @total_pv = @issues.sum(:estimate_hours)
     @total_ev = @issues.done.sum(:estimate_hours)
+    @active_days = @issues.order(:updated).last.updated - @project.created
     @remaining_working_time = @issues.not_done.sum(:estimate_hours)
     @outsourcing_info = @project.outsourcing_costs
     @users_worktime = @issues.time_entries_join_users.sum(:hours)
     @versions = @project.versions
     set_velocity
-    set_project_info if @project.sales.present?
+    set_project_info
     set_gon
   end
 
@@ -88,6 +85,7 @@ class ProjectsController < ApplicationController
     end
 
     def set_gon
+      gon.active_days = @active_days.to_i
       gon.daily_ac = @issues.time_entries.group("time_entries.spent_on").sum(:hours)
       gon.daily_pv = @issues.group(:start_date).sum(:estimate_hours)
       gon.daily_ev = @issues.done.group(:start_date).sum(:estimate_hours)
@@ -114,17 +112,25 @@ class ProjectsController < ApplicationController
       # 外注費合計
       @outsourcing_cost_sum = @project.outsourcing_costs.sum(:cost).to_i
       # 従業員コスト
-      users_salary = @issues.users_salary.sum(:hours)
-      @employee_cost = 0
-      users_salary.each do |key, value|
-        @employee_cost += key * value if key
+      daily_cost = @issues.daily_cost.sum(:hours)
+      employee_cost = 0
+      daily_cost = daily_cost.map do |key, value|
+        if key[0]
+          employee_cost += (key[0] * value)/10000
+          [key[1], (key[0] * value)/10000]
+        end
       end
+      gon.daily_cost = daily_cost.compact.to_h
+      set_project_info_with_sales?(employee_cost) if @project.sales.present?
+    end
+
+    def set_project_info_with_sales?(employee_cost)
       # 予想利益
       @estimated_profits = @project.sales.to_i - @project.planned_cost.to_i - @outsourcing_cost_sum
       # 実利益
-      @net_income = @project.sales.to_i - @employee_cost - @outsourcing_cost_sum
+      @net_income = @project.sales.to_i - employee_cost - @outsourcing_cost_sum
       # 利益率
-      @profit_rate = ((@project.sales - @outsourcing_cost_sum) / @employee_cost * 100).round(1)
+      @profit_rate = ((@project.sales - @outsourcing_cost_sum) / employee_cost * 100).round(1)
       # 評価値
       @grade = case @profit_rate
       when @profit_rate > 50

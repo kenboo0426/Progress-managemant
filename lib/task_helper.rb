@@ -1,7 +1,7 @@
 module TaskHelper
   
-  API_KEY = "key=#{Rails.application.credentials.redmine_api_key}"
-  BASE_URL = "https://redmine.entaworks.co.jp/"
+  API_KEY = "key=#{Rails.application.credentials.redmine[:api_key]}"
+  BASE_URL = Rails.application.credentials.redmine[:url]
 
 
   def projects()
