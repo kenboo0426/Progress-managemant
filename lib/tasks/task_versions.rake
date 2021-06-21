@@ -17,11 +17,9 @@ namespace :task_versions do
       all_project.each do |project|
         versions = call_api(versions(project))
         versions.each do |version|
-          if version[:due_date].present?
-            Version.new(version_id: version[:id], project_id: version[:project][:id], name: version[:name], description: version[:description], due_date: version[:due_date]).save
-          else
-            Version.new(version_id: version[:id], project_id: version[:project][:id], name: version[:name], description: version[:description]).save
-          end
+          new_version = Version.new(version_id: version[:id], project_id: version[:project][:id], name: version[:name], description: version[:description])
+          new_version.due_date = version[:due_date] if version[:due_date].present?
+          new_version.save
         end
       end 
       # SlackNotifier.success(file_name: file_name)

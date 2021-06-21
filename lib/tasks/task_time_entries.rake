@@ -22,11 +22,14 @@ namespace :task_time_entries do
         get_timeEntry = call_api(time_entries(from, project.project_id))
         get_timeEntry.each do |p|
           if p[:hours] > 0.0
+            new_time_entry = TimeEntry.new(time_entry_id: p[:id], hours: p[:hours],spent_on: p[:spent_on],activity_name: p[:activity][:name],user_id: p[:user][:id])
             if p[:issue].present?
-              TimeEntry.new(time_entry_id: p[:id], issue_id: p[:issue][:id],hours: p[:hours],spent_on: p[:spent_on],activity_name: p[:activity][:name],user_id: p[:user][:id]).save
+              new_time_entry.issue_id = p[:issue][:id]
+              new_time_entry.save
               @issue_id = p[:issue][:id]
             else
-              TimeEntry.new(time_entry_id: p[:id], issue_id: @issue_id,hours: p[:hours],spent_on: p[:spent_on],activity_name: p[:activity][:name],user_id: p[:user][:id]).save
+              new_time_entry.issue_id = @issue_id
+              new_time_entry.save
             end
           end
         end

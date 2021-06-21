@@ -16,16 +16,14 @@ namespace :task_projects do
       get_projects = call_api(projects())
       flag = 0
       get_projects.each do |p|
-        if p[:parent].present?
-          parent_id = p[:parent][:id]
-        end
+        parent_id = p[:parent][:id] if p[:parent].present?
         #idが237が来てから次に親がいないプロジェクトが来るまでnewしない（つまり、LaplaceHideの子プロジェクトをnewしない）
         if flag == 1 && !p[:parent].present?
           flag = 0
         end
         flag = 1 if p[:id] == 237
         if flag == 0
-          Project.new(project_id: p[:id],parent_id: parent_id,project_name: p[:name],description: p[:description],status: p[:status],created: p[:created_on],updated: p[:updated_on],identifier: p[:identifier]).save
+          Project.create(project_id: p[:id],parent_id: parent_id,project_name: p[:name],description: p[:description],status: p[:status],created: p[:created_on],updated: p[:updated_on],identifier: p[:identifier])
         end
       end
       # SlackNotifier.success(file_name: file_name)

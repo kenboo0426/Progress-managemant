@@ -19,7 +19,7 @@ namespace :task_users_project_has do
         if project_to_users.present?
           project_to_users.each do |u|
             if u[:user].present?
-              Relationship.new(project_id: project.project_id, user_id: u[:user][:id], roles: u[:roles][0][:name]).save
+              Relationship.create(project_id: project.project_id, user_id: u[:user][:id], roles: u[:roles][0][:name])
             elsif u[:group]
             end
           end

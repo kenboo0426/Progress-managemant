@@ -20,19 +20,13 @@ namespace :task_issues do
   
         get_issues = call_api(issues(query, project.project_id))
         get_issues.each do |p|
-          if Issue.find_by(issue_id: p[:id]) && Issue.find_by(issue_id: p[:id]).updated != p[:updated_on]
-            if p[:start_date].present?
-              Issue.find_by(issue_id: p[:id]).update(issue_name: p[:subject],updated: p[:updated_on],estimate_hours: p[:estimated_hours],start_date: p[:start_date],closed_on: p[:closed_on])
-            else
-              Issue.find_by(issue_id: p[:id]).update(issue_name: p[:subject],updated: p[:updated_on],estimate_hours: p[:estimated_hours],start_date: p[:created_on],closed_on: p[:closed_on])
-            end
-          elsif !Issue.find_by(issue_id: p[:id])
-            
-            if p[:start_date].present?
-              Issue.new(project_id: p[:project][:id],issue_id: p[:id],issue_name: p[:subject],updated: p[:updated_on],estimate_hours: p[:estimated_hours],start_date: p[:start_date],closed_on: p[:closed_on]).save
-            else
-              Issue.new(project_id: p[:project][:id],issue_id: p[:id],issue_name: p[:subject],updated: p[:updated_on],estimate_hours: p[:estimated_hours],start_date: p[:created_on],closed_on: p[:closed_on]).save
-            end
+          issue = Issue.find_by(issue_id: p[:id])
+          if issue && issue.updated != p[:updated_on]
+            issue.update(issue_name: p[:subject],updated: p[:updated_on],estimate_hours: p[:estimated_hours],closed_on: p[:closed_on])
+            p[:start_date].present? ? issue.update(start_date: p[:start_date]) : issue.update(start_date: p[:created_on])
+          elsif !issue
+            new_issue = Issue.new(project_id: p[:project][:id],issue_id: p[:id],issue_name: p[:subject],updated: p[:updated_on],estimate_hours: p[:estimated_hours],closed_on: p[:closed_on])
+            p[:start_date].present? ? new_issue.update(start_date: p[:start_date]).save : new_issue.update(start_date: p[:created_on]).save
           end
         end
       end
