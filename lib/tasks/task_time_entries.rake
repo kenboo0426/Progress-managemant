@@ -13,15 +13,13 @@ namespace :task_time_entries do
     logger.debug("test")
     file_name = File.basename(__FILE__)
     begin
-      if LastAcquisition.order(:last_acquisition).last
-        project = LastAcquisition.order(:last_acquisition).last
-        @from = "from=#{project.last_acquisition.to_date}&"
-      else
-        @from = ""
-      end
       all_project = Project.all
       all_project.each do |project|
-        get_timeEntry = call_api(time_entries(@from, project.project_id))
+        latest_time_entries_every_issue = project.issues.map { |issue| issue.time_entries.order("time_entries.updated_at desc").first }
+        last_acquisition = latest_time_entries_every_issue.compact.max {|a, b| a.updated_at <=> b.updated_at}
+        from = last_acquisition ? "from=#{last_acquisition.updated_at.to_date}&" : ""
+
+        get_timeEntry = call_api(time_entries(from, project.project_id))
         get_timeEntry.each do |p|
           if p[:hours] > 0.0
             if p[:issue].present?

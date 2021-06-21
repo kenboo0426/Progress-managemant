@@ -15,17 +15,10 @@ namespace :task_issues do
     begin
       all_project = Project.all
       all_project.each do |project|
-        last_acquisition = Time.now
-        if LastAcquisition.find_by(project_id: project.project_id)
-          project = LastAcquisition.find_by(project_id: project.project_id)
-          @query = URI.encode_www_form(updated_on: "#{project.last_acquisition.iso8601}")
-          LastAcquisition.find_by(project_id: project.project_id).update(last_acquisition: last_acquisition)
-        else
-          @query = ""
-          LastAcquisition.new(project_id: project.project_id,last_acquisition: last_acquisition).save
-        end
+        last_acquisition = project.issues.compact.max {|a, b| a.updated_at <=> b.updated_at}
+        query = last_acquisition ? URI.encode_www_form(updated_on: last_acquisition.updated_at.iso8601) : ""
   
-        get_issues = call_api(issues(@query, project.project_id))
+        get_issues = call_api(issues(query, project.project_id))
         get_issues.each do |p|
           if Issue.find_by(issue_id: p[:id]) && Issue.find_by(issue_id: p[:id]).updated != p[:updated_on]
             if p[:start_date].present?
