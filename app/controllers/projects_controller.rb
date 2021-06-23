@@ -130,21 +130,21 @@ class ProjectsController < ApplicationController
       # 実利益
       @net_income = @project.sales.to_i - employee_cost - @outsourcing_cost_sum
       # 利益率
-      @profit_rate = ((@project.sales - @outsourcing_cost_sum) / employee_cost * 100).round(1)
+      @profit_rate = (@net_income / @project.sales * 100).round(1)
       # 評価値
       @grade = case @profit_rate
-      when @profit_rate > 50
-        "プラチナ"
-      when @profit_rate > 30
-        "ゴールド"
-      when @profit_rate > 20
-        "シルバー"
-      when @profit_rate > 10 # documentは (収益率)>10 と定義
-        "ブロンズ"
-      when @profit_rate > 0
-        "ストーン"
+      when 50..100
+          "プラチナ"
+      when 30..49
+          "ゴールド"
+      when 20..29
+          "シルバー"
+      when 10..19 # documentは (収益率)>10 と定義
+          "ブロンズ"
+      when 0..9
+          "ストーン"
       else
-        "F"
+          "F"
       end
       @project.update(grade: @grade)
     end

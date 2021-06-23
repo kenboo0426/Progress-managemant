@@ -89,7 +89,7 @@
         <td><%= number_to_currency(@net_income, :precision => 1,:format => "%n%u", :unit => "万円") %></td>
       </tr>
       <tr>
-        <th>利益率（現在の週まで）</th>
+        <th>利益率（実利益 ÷ 受注額）</th>
         <td><%= number_to_currency(@profit_rate, :precision => 1,:format => "%n%u", :unit => "％") %></td>
       </tr>
       <tr data-toggle="tooltip" data-original-title=
