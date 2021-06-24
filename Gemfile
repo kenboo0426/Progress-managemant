@@ -24,7 +24,7 @@ group :development, :test do
   gem 'sqlite3', '~> 1.4'
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rails-erd'
-
+  gem 'rspec-rails', '~> 4.0.1'
 
   gem 'capistrano', '~> 3.0.1'
   gem 'capistrano-rails'
