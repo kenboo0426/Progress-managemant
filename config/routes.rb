@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       patch :versions_update
       post :create_outsourcing
       delete :delete_outsourcing
+      patch :update_outsourcing
     end
   end
   get "test" => "projects#test"

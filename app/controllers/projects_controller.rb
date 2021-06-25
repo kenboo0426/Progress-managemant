@@ -3,6 +3,7 @@ class ProjectsController < ApplicationController
   before_action :set_project, except: [:index]
   before_action :set_issues, except: [:index]
   before_action :should_redirect_if_no_issue, only: [:show]
+  before_action :set_outsourcing, only: [:update_outsourcing, :delete_outsourcing]
 
   
   def index
@@ -27,21 +28,23 @@ class ProjectsController < ApplicationController
 
   def update
     if @project.update(project_params)
-      redirect_to("/projects/#{params[:id]}")
+      redirect_to project_path
     end
   end
 
   def create_outsourcing
-    if params[:cost].present?
-      OutsourcingCost.create(project_id: params[:id], cost: params[:cost], name: params[:name], description: params[:description])
-    end
-    redirect_to("/projects/#{params[:id]}")
+    flash[:notice] = OutsourcingCost.create(create_outsourcing_params) ? "作成しました" : "作成できませんでした"
+    redirect_to project_path
+  end
+
+  def update_outsourcing
+    flash[:notice] = @outsourcing.update(update_outsourcing_params) ? "更新しました" : "更新できませんでした"
+    redirect_to project_path
   end
 
   def delete_outsourcing
-    if OutsourcingCost.find_by(project_id: params[:id]).destroy
-      redirect_to("/projects/#{params[:id]}")
-    end
+    flash[:notice] = @outsourcing.destroy ? "削除しました" : "削除できませんでした"
+    redirect_to project_path
   end
 
   def edit
@@ -49,7 +52,7 @@ class ProjectsController < ApplicationController
 
   def versions_update
     if Version.find_by(id: params[:version]).update(qc_checked: params[:qc_checked])
-      redirect_to("/projects/#{params[:id]}")
+      redirect_to project_path
     end
   end
 
@@ -134,19 +137,23 @@ class ProjectsController < ApplicationController
       # 評価値
       @grade = case @profit_rate
       when 50..100
-          "プラチナ"
+        "プラチナ"
       when 30..49
-          "ゴールド"
+        "ゴールド"
       when 20..29
-          "シルバー"
+        "シルバー"
       when 10..19 # documentは (収益率)>10 と定義
-          "ブロンズ"
+        "ブロンズ"
       when 0..9
-          "ストーン"
+        "ストーン"
       else
-          "F"
+        "F"
       end
       @project.update(grade: @grade)
+    end
+
+    def set_outsourcing
+      @outsourcing = OutsourcingCost.find_by(id: params[:outsourcing_cost][:id])
     end
 
     def today
@@ -166,8 +173,12 @@ class ProjectsController < ApplicationController
       params.require(:project).permit(:planned_cost, :sales, :leader_name)
     end
 
-    def outsourcing_costs_params
-      params.require(:outsourcing_cost).permit(:cost, :name, :description)
+    def update_outsourcing_params
+      params.require(:outsourcing_cost).permit(:name, :cost, :description)
+    end
+
+    def create_outsourcing_params
+      params.permit(:project_id, :name, :cost, :description)
     end
 
 end
